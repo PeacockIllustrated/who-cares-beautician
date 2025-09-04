@@ -62,7 +62,7 @@ This is a production-ready, full-stack web application for a beauty salon, built
     - Copy the `firebaseConfig` object.
 
 5.  **Environment Variables:**
-    - Create a `.env.local` file in the root directory.
+    - Create a `.env.local` file in the root directory for local development.
     - Add your Firebase config keys to it, prefixed with `VITE_`:
       ```
       VITE_FIREBASE_API_KEY="AIza..."
@@ -73,7 +73,7 @@ This is a production-ready, full-stack web application for a beauty salon, built
       VITE_FIREBASE_APP_ID="1:12345...:web:..."
       VITE_FIREBASE_MEASUREMENT_ID="G-..."
       ```
-    - The app has a hardcoded fallback config for initial setup, but using environment variables is recommended.
+    - The app has a hardcoded fallback config for initial setup, but using environment variables is required for deployment.
 
 6.  **Configure Firebase CLI:**
     - Log in to Firebase: `firebase login`
@@ -99,13 +99,30 @@ This is a production-ready, full-stack web application for a beauty salon, built
 
 ## Deployment
 
-1.  **Build the React app:**
-    ```sh
-    npm run build
-    ```
+### 1. Build the Application
+```sh
+npm run build
+```
 
-2.  **Deploy to Firebase:**
-    - This command will deploy the compiled frontend to Firebase Hosting, the Cloud Functions, and the Firestore rules/indexes.
-    ```sh
-    firebase deploy
-    ```
+### 2. Deploy to Hosting (Firebase, Netlify, etc.)
+You can deploy the `dist` folder to any static hosting provider. For Firebase Hosting:
+```sh
+firebase deploy --only hosting
+```
+
+### 3. Deploy Firebase Rules & Functions
+```sh
+firebase deploy --only firestore,functions
+```
+
+### 4. CRITICAL: Post-Deployment Configuration
+
+**A) Set Environment Variables:**
+- In your hosting provider's dashboard (e.g., Netlify, Vercel), you **must** set the same `VITE_FIREBASE_*` environment variables that you used in your `.env.local` file. The build process will use these to configure the app.
+
+**B) Authorize Your Domain:**
+- The `auth/configuration-not-found` error occurs because Firebase Authentication, by default, only allows sign-ins from `localhost` and your authorized Firebase Hosting domains for security.
+- Go to your **Firebase Console**.
+- Navigate to **Authentication** -> **Settings** -> **Authorized domains**.
+- Click **Add domain** and enter the domain where your app is hosted (e.g., `your-site-name.netlify.app`).
+- **This step is mandatory for Google Sign-In to work on your live site.**

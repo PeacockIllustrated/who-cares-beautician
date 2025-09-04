@@ -1,33 +1,23 @@
 
 # Who Cares - Beautician Booking App
 
-This is a production-ready, full-stack web application for a beauty salon, built with React, TypeScript, Vite, Tailwind CSS, and a comprehensive Firebase backend.
+This is a production-ready, full-stack web application for a beauty salon, built with a simplified and robust structure using React, TypeScript, Vite, Tailwind CSS, and a comprehensive Firebase backend.
 
 ## Features
 
-### Client-Facing
-- **Service Browsing:** View available services and add-ons.
-- **Real-time Booking:** Select available slots from a calendar.
-- **Booking Management:** View, edit style notes, or cancel upcoming appointments.
-- **Out-of-Hours Requests:** Request appointments outside of standard availability.
-- **Waiting List:** Join a waiting list for a fully booked day.
-- **PWA Support:** Installable on mobile devices with offline capabilities.
-
-### Admin Dashboard
-- **KPI Overview:** Key metrics at a glance.
-- **Appointment Management:** View and manage all upcoming and past appointments.
-- **Request Management:** Approve or deny out-of-hours requests.
-- **Waiting List Management:** Notify clients on the waiting list.
-- **Services CRUD:** Full control over services, pricing, and visibility.
-- **Availability Tools:** Set weekly recurring availability and manage one-off dates.
-- **Client CRM:** View client history and add internal notes.
+- **Simplified Architecture:** A flat, easy-to-understand structure perfect for getting started and deploying quickly.
+- **Role-Based Views:** A single homepage that intelligently displays either a client or admin dashboard after login.
+- **Client Dashboard:** View booking history.
+- **Admin Dashboard:** Placeholder for admin-specific functionality.
+- **Secure Authentication:** Google Sign-In with secure, server-enforced admin roles.
+- **PWA Ready:** The app is fully installable on mobile devices.
+- **Server-Side Logic:** Critical operations like booking and cancellation are handled by secure Firebase Cloud Functions.
 
 ## Tech Stack
 
 - **Frontend:** React 18, TypeScript, Vite, Tailwind CSS
 - **Backend:** Firebase (Authentication, Firestore, Cloud Functions)
-- **State Management:** React Hooks & Context
-- **PWA:** `vite-plugin-pwa` for service worker and manifest generation
+- **State Management:** React Hooks & Context API
 
 ## Prerequisites
 
@@ -62,67 +52,55 @@ This is a production-ready, full-stack web application for a beauty salon, built
     - Copy the `firebaseConfig` object.
 
 5.  **Environment Variables:**
-    - Create a `.env.local` file in the root directory for local development.
-    - Add your Firebase config keys to it, prefixed with `VITE_`:
-      ```
-      VITE_FIREBASE_API_KEY="AIza..."
-      VITE_FIREBASE_AUTH_DOMAIN="your-project.firebaseapp.com"
-      VITE_FIREBASE_PROJECT_ID="your-project"
-      VITE_FIREBASE_STORAGE_BUCKET="your-project.appspot.com"
-      VITE_FIREBASE_MESSAGING_SENDER_ID="12345..."
-      VITE_FIREBASE_APP_ID="1:12345...:web:..."
-      VITE_FIREBASE_MEASUREMENT_ID="G-..."
-      ```
-    - The app has a hardcoded fallback config for initial setup, but using environment variables is required for deployment.
+    - Create a `.env.local` file in the root directory.
+    - Copy the contents of `.env.example` and fill in your Firebase project details. These are essential.
 
-6.  **Configure Firebase CLI:**
-    - Log in to Firebase: `firebase login`
-    - Set the active project: `firebase use your-project-id`
+6.  **Configure Admin User:**
+    - To use the admin panel, you must designate an admin user. After signing in with your app at least once, go to your Firestore database:
+        - Collection: `_internal` -> Document: `adminConfig`
+        - Create a field `adminUids` of type `array`.
+        - Add your Firebase Auth UID as a string to this array.
 
-7.  **Seed Initial Data (Optional but Recommended):**
-    - To use the admin panel, you need to be designated as an admin. Manually add a document in your Firestore database:
-        - Collection: `_internal`
-        - Document ID: `adminConfig`
-        - Field: `adminUids` (Type: `array`)
-        - Value: Add your Firebase Auth UID as a string in the array.
-
-8.  **Run with Firebase Emulators:**
-    - This is the best way to develop locally.
+7.  **Run with Firebase Emulators:**
+    - This is the best way to develop locally. Start the emulators:
     ```sh
     firebase emulators:start
     ```
-    - In a separate terminal, run the Vite dev server:
+    - In a **new terminal**, run the Vite dev server:
     ```sh
     npm run dev
     ```
-    - The app will be running on `http://localhost:5173` and connected to the local emulators.
+    - The app will run on `http://localhost:5173` and connect to the local emulators automatically.
 
-## Deployment
+## Deployment Guide
 
-### 1. Build the Application
-```sh
-npm run build
-```
+1.  **Build the Application:**
+    ```sh
+    npm run build
+    ```
+    This creates a `dist` folder ready for hosting.
 
-### 2. Deploy to Hosting (Firebase, Netlify, etc.)
-You can deploy the `dist` folder to any static hosting provider. For Firebase Hosting:
-```sh
-firebase deploy --only hosting
-```
+2.  **Deploy Firebase Components:**
+    ```sh
+    firebase deploy --only firestore,functions
+    ```
 
-### 3. Deploy Firebase Rules & Functions
-```sh
-firebase deploy --only firestore,functions
-```
+3.  **Deploy to Hosting (Netlify, Vercel, Firebase Hosting):**
+    - **Set Environment Variables:** In your hosting provider's dashboard (e.g., Netlify), you **must** set the same `VITE_FIREBASE_*` environment variables from your `.env.local` file.
+    - **Deploy the `dist` folder.**
 
-### 4. CRITICAL: Post-Deployment Configuration
+---
 
-**A) Set Environment Variables:**
-- In your hosting provider's dashboard (e.g., Netlify, Vercel), you **must** set the same `VITE_FIREBASE_*` environment variables that you used in your `.env.local` file. The build process will use these to configure the app.
+### **CRITICAL: Authorize Your Live Domain**
 
-**B) Authorize Your Domain:**
-- The `auth/configuration-not-found` error occurs because Firebase Authentication, by default, only allows sign-ins from `localhost` and your authorized Firebase Hosting domains for security.
-- Go to your **Firebase Console**.
-- Navigate to **Authentication** -> **Settings** -> **Authorized domains**.
-- Click **Add domain** and enter the domain where your app is hosted (e.g., `your-site-name.netlify.app`).
-- **This step is mandatory for Google Sign-In to work on your live site.**
+This is the most common reason for login failures on a deployed site.
+
+- **Why?** For security, Firebase Authentication blocks sign-in attempts from unknown domains.
+- **How to Fix:**
+    1.  Go to your **Firebase Console**.
+    2.  Navigate to **Authentication** -> **Settings** -> **Authorized domains**.
+    3.  Click **Add domain** and enter your live URL (e.g., `your-app.netlify.app`).
+
+**Your app will not work without this step.**
+
+---

@@ -1,0 +1,5 @@
+{
+  "name": "Who Cares Beautician App",
+  "description": "A production-ready web application for a beauty salon, enabling clients to book services and admins to manage appointments, services, and availability.",
+  "requestFramePermissions": []
+}
